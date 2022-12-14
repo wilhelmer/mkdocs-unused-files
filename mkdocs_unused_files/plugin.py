@@ -13,7 +13,7 @@ class UnusedFilesPlugin(BasePlugin):
 
     config_scheme = (
         ('dir', config_options.Type(str, default='')),
-        ('file_types',config_options.Type((str, list), default=["png"])),
+        ('file_types',config_options.Type((str, list), default=[])),
     )
 
     def on_files(self, files, config):
@@ -23,7 +23,8 @@ class UnusedFilesPlugin(BasePlugin):
         for path, _, files in os.walk(dir):
             for file in files:
                 # Add all files with the given extensions to file_list
-                if file.endswith(tuple(ext)):
+                # If no extensions were given, add all files except Markdown files
+                if file.endswith(tuple(ext)) or (not ext and not file.endswith('md')):
                     rel_dir = os.path.relpath(path, config.docs_dir)
                     rel_file = file if (rel_dir == ".") else os.path.join(rel_dir, file)
                     self.file_list.append(rel_file)
