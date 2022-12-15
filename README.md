@@ -6,6 +6,8 @@ This is useful, e.g., if your project contains a lot of image files and you lost
 
 A file is considered "used" when it is referenced in at least one Markdown file of your project, either as an image or as a hyperlink reference.
 
+> :bulb: The plugin only searches in the page content, not in the rendered template (footer, header, navigation), for better performance. Therefore, the plugin may incorrectly report template files as unused.
+
 ## Installation
 
 Install the package with pip:
