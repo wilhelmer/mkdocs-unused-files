@@ -32,16 +32,24 @@ class UnusedFilesPlugin(BasePlugin):
                     rel_file = file if (rel_dir == ".") else os.path.join(rel_dir, file)
                     self.file_list.append(rel_file)
 
-    def on_page_content(self, html, **kwargs):
+    def on_page_content(self, html, page, config, files):
         soup = BeautifulSoup(html, 'html.parser')
         ref_list = []
         # Get all file references in <a href="...">
         for a in soup.find_all('a', href=self.matches_type):
-            ref_list.append(urllib.parse.unquote(a['href']))
+            href = urllib.parse.unquote(a['href'])
+            if config.use_directory_urls:
+                href = href.replace('..' + os.path.sep, '', 1)
+            href = os.path.join(os.path.dirname(page.file.src_uri), href)
+            ref_list.append(href)
 
         # Get all file references in <img src="...">
         for img in soup.find_all('img', src=self.matches_type):
-            ref_list.append(urllib.parse.unquote(img['src']))
+            src = urllib.parse.unquote(img['src'])
+            if config.use_directory_urls:
+                src = src.replace('..' + os.path.sep, '', 1)
+            src = os.path.join(os.path.dirname(page.file.src_uri), src)
+            ref_list.append(src)
 
         # Remove all referenced files from file list
         self.file_list = [i for i in self.file_list if i not in ref_list]
