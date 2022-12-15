@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='mkdocs-unused-files',
-    version='0.1.1',
+    version='0.1.2',
     description='An MkDocs plugin to find unused (orphaned) files in your project.',
     long_description='',
     keywords='mkdocs',
