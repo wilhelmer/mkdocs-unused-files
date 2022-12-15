@@ -20,6 +20,17 @@ class UnusedFilesPlugin(BasePlugin):
         types = self.config["file_types"]
         return not types or (str and str.endswith(tuple(types)))
 
+    def update_ref(self, ref, page_uri, use_directory_urls):
+        # If use_directory_urls is enabled, references may point 
+        # to the parent directory, for which we have to compensate
+        if use_directory_urls and ref.startswith("../"):
+            ref = urllib.parse.unquote(ref)[3:]
+        else:
+            ref = urllib.parse.unquote(ref)
+        # Add the path of the page containing the reference
+        ref = os.path.join(os.path.dirname(page_uri), ref)
+        return ref
+
     def on_files(self, files, config):
         dir = os.path.join(config.docs_dir, self.config["dir"])
         # Get all files in directory
@@ -37,19 +48,11 @@ class UnusedFilesPlugin(BasePlugin):
         ref_list = []
         # Get all file references in <a href="...">
         for a in soup.find_all('a', href=self.matches_type):
-            href = urllib.parse.unquote(a['href'])
-            if config.use_directory_urls:
-                href = href.replace('..' + os.path.sep, '', 1)
-            href = os.path.join(os.path.dirname(page.file.src_uri), href)
-            ref_list.append(href)
+            ref_list.append(self.update_ref(a['href'], page.file.src_uri, config.use_directory_urls))
 
         # Get all file references in <img src="...">
         for img in soup.find_all('img', src=self.matches_type):
-            src = urllib.parse.unquote(img['src'])
-            if config.use_directory_urls:
-                src = src.replace('..' + os.path.sep, '', 1)
-            src = os.path.join(os.path.dirname(page.file.src_uri), src)
-            ref_list.append(src)
+            ref_list.append(self.update_ref(img['src'], page.file.src_uri, config.use_directory_urls))
 
         # Remove all referenced files from file list
         self.file_list = [i for i in self.file_list if i not in ref_list]
