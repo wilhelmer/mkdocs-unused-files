@@ -4,6 +4,8 @@ An MkDocs plugin to find unused (orphaned) files in your project.
 
 This is useful, e.g., if your project contains a lot of image files and you lost track which images are still in use.
 
+A file is considered "used" when it is referenced in at least one Markdown file of your project, either as an image or as a hyperlink reference.
+
 ## Installation
 
 Install the package with pip:
@@ -18,11 +20,11 @@ Enable the plugin in your mkdocs.yml:
 plugins:
   - search
   - unused_files:
-      dir: "images"
+      dir: images
       file_types:
-        - "png"
-        - "jpg"
-        - "svg"
+        - png
+        - jpg
+        - svg
 ```
 
 > **Note:** If you have no `plugins` entry in your config file yet, you'll likely also want to add the `search` plugin. MkDocs enables it by default if there is no `plugins` entry set, but now you have to enable it explicitly.
@@ -35,7 +37,7 @@ Search is done as follows:
 
 1. Get the list of files in the specified directory, including all subdirectories.
 2. Collect all image and hyperlink references in the HTML output (`<a href="...">` and `<img src="...">`).
-3. Remove all files that have been referenced from the list of files.
+3. Remove all referenced files from the list of files.
 4. Once all pages have been processed, display an MkDocs info message listing all non-referenced files:
 
 ```
@@ -47,4 +49,4 @@ INFO -  The following files exist in the docs directory, but may be unused:
 ## Options
 
 * `dir`: The directory where to search for unused files. Path is relative to `docs_dir`. The plugin recurses all subdirectories. For example, if you specify `images` and `docs_dir` is set to `docs`, the plugin searches in `docs/images`, including all subdirectories. Defaults to `docs_dir`.
-* `file_types`: List of file types the plugin should process. If no types are specified or the option is omitted, all files **except Markdown (md)** files will be processed. Defaults to `[]`.
+* `file_types`: List of file types the plugin should process (whitelist). If empty or omitted, all files **except Markdown (md)** files will be processed. Defaults to `[]`.
