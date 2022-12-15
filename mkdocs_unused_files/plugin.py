@@ -28,7 +28,8 @@ class UnusedFilesPlugin(BasePlugin):
         else:
             ref = urllib.parse.unquote(ref)
         # Add the path of the page containing the reference
-        ref = os.path.join(os.path.dirname(page_uri), ref)
+        # and normalize for Windows compatibility
+        ref = os.path.normpath(os.path.join(os.path.dirname(page_uri), ref))
         return ref
 
     def on_files(self, files, config):
