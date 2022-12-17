@@ -20,15 +20,11 @@ class UnusedFilesPlugin(BasePlugin):
         types = self.config["file_types"]
         return not types or (str and str.endswith(tuple(types)))
 
-    def update_ref(self, ref, page_uri, use_directory_urls):
-        # If use_directory_urls is enabled, references may point 
-        # to the parent directory, for which we have to compensate
-        if use_directory_urls and ref.startswith("../"):
-            ref = urllib.parse.unquote(ref)[3:]
-        else:
-            ref = urllib.parse.unquote(ref)
+    def rewrite_ref(self, ref, page_uri):
+        ref = urllib.parse.unquote(ref)
         # Add the path of the page containing the reference
-        # and normalize for Windows compatibility
+        # When use_directory_urls is set to true, "../" may be added to some refs
+        # normpath() works around that and also ensures Windows compatibility
         ref = os.path.normpath(os.path.join(os.path.dirname(page_uri), ref))
         return ref
 
@@ -40,20 +36,21 @@ class UnusedFilesPlugin(BasePlugin):
                 # Add all files with the given types to file_list
                 # If no types were given, add all files except Markdown files
                 if not file.endswith("md") and self.matches_type(file):
-                    rel_dir = os.path.relpath(path, config.docs_dir)
-                    rel_file = file if (rel_dir == ".") else os.path.join(rel_dir, file)
-                    self.file_list.append(rel_file)
+                    # Create entry from relative path between full path and docs_dir + filename
+                    # When path and docs_dir are identical, relpath returns ".". We use normpath() to resolve that
+                    entry = os.path.normpath(os.path.join(os.path.relpath(path, config.docs_dir), file))
+                    self.file_list.append(entry)
 
     def on_page_content(self, html, page, config, files):
         soup = BeautifulSoup(html, 'html.parser')
         ref_list = []
         # Get all file references in <a href="...">
         for a in soup.find_all('a', href=self.matches_type):
-            ref_list.append(self.update_ref(a['href'], page.file.src_uri, config.use_directory_urls))
+            ref_list.append(self.rewrite_ref(a['href'], page.file.dest_uri))
 
         # Get all file references in <img src="...">
         for img in soup.find_all('img', src=self.matches_type):
-            ref_list.append(self.update_ref(img['src'], page.file.src_uri, config.use_directory_urls))
+            ref_list.append(self.rewrite_ref(img['src'], page.file.dest_uri))
 
         # Remove all referenced files from file list
         self.file_list = [i for i in self.file_list if i not in ref_list]
