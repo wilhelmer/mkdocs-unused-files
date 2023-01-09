@@ -43,12 +43,13 @@ Search is done as follows:
 4. Once all pages have been processed, display an MkDocs info message listing all non-referenced files:
 
 ```
-INFO -  The following files exist in the docs directory, but may be unused:
+WARNING -  The following files exist in the docs directory, but may be unused:
         - images/image1.svg
-        - images/subdir/image2.png 
+        - images/subdir/image2.png
 ```
 
 ## Options
 
 * `dir`: The directory where to search for unused files. Path is relative to `docs_dir`. The plugin recurses all subdirectories. For example, if you specify `images` and `docs_dir` is set to `docs`, the plugin searches in `docs/images`, including all subdirectories. Defaults to `docs_dir`.
 * `file_types`: List of file types the plugin should process (whitelist). If empty or omitted, all files **except Markdown (md)** files will be processed. Defaults to `[]`.
+* `excluded_files`: List of files (relative to the `dir`), which are explicitly excluded. Works in combination with `file_types`
