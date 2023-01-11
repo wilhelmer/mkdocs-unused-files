@@ -14,7 +14,8 @@ class UnusedFilesPlugin(BasePlugin):
     config_scheme = (
         ('dir', config_options.Type(str, default='')),
         ('file_types',config_options.Type((str, list), default=[])),
-        ('excluded_files', config_options.Type((str, list), default=[]))
+        ('excluded_files', config_options.Type((str, list), default=[])),
+        ('strict', config_options.Type(bool, default=False))
     )
 
     def matches_type(self, str):
@@ -40,7 +41,7 @@ class UnusedFilesPlugin(BasePlugin):
                     # Create entry from relative path between full path and docs_dir + filename
                     # When path and docs_dir are identical, relpath returns ".". We use normpath() to resolve that
                     entry = os.path.normpath(os.path.join(os.path.relpath(path, config.docs_dir), file))
-                    if file in self.config['excluded_files']:
+                    if entry in self.config['excluded_files']:
                         continue
                     self.file_list.append(entry)
 
@@ -59,6 +60,9 @@ class UnusedFilesPlugin(BasePlugin):
         self.file_list = [i for i in self.file_list if i not in ref_list]
 
     def on_post_build(self, config):
+        logger = log.info
+        if self.config['strict']:
+            logger = log.warning
         if self.file_list:
-            log.warning('The following files exist in the docs directory, but may be unused:\n  - {}'.format('\n  - '.join(self.file_list)))
+            logger('The following files exist in the docs directory, but may be unused:\n  - {}'.format('\n  - '.join(self.file_list)))
 
