@@ -14,10 +14,12 @@ class UnusedFilesPlugin(BasePlugin):
     config_scheme = (
         ('dir', config_options.Type(str, default='')),
         ('file_types',config_options.Type((str, list), default=[])),
+        ('excluded_files', config_options.Type((str, list), default=[])),
+        ('strict', config_options.Type(bool, default=False))
     )
 
     def matches_type(self, str):
-        types = self.config["file_types"]
+        types = self.config['file_types']
         return not types or (str and str.endswith(tuple(types)))
 
     def rewrite_ref(self, ref, page_uri):
@@ -29,7 +31,7 @@ class UnusedFilesPlugin(BasePlugin):
         return ref
 
     def on_files(self, files, config):
-        dir = os.path.join(config.docs_dir, self.config["dir"])
+        dir = os.path.join(config.docs_dir, self.config['dir'])
         # Get all files in directory
         for path, _, files in os.walk(dir):
             for file in files:
@@ -39,6 +41,8 @@ class UnusedFilesPlugin(BasePlugin):
                     # Create entry from relative path between full path and docs_dir + filename
                     # When path and docs_dir are identical, relpath returns ".". We use normpath() to resolve that
                     entry = os.path.normpath(os.path.join(os.path.relpath(path, config.docs_dir), file))
+                    if entry in self.config['excluded_files']:
+                        continue
                     self.file_list.append(entry)
 
     def on_page_content(self, html, page, config, files):
@@ -56,6 +60,9 @@ class UnusedFilesPlugin(BasePlugin):
         self.file_list = [i for i in self.file_list if i not in ref_list]
 
     def on_post_build(self, config):
+        logger = log.info
+        if self.config['strict']:
+            logger = log.warning
         if self.file_list:
-            log.info('The following files exist in the docs directory, but may be unused:\n  - {}'.format('\n  - '.join(self.file_list)))
+            logger('The following files exist in the docs directory, but may be unused:\n  - {}'.format('\n  - '.join(self.file_list)))
 

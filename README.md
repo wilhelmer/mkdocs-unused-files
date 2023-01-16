@@ -27,6 +27,9 @@ plugins:
         - png
         - jpg
         - svg
+      excluded_files:
+        - css/favicon.png
+      strict: true
 ```
 
 > **Note:** If you have no `plugins` entry in your config file yet, you'll likely also want to add the `search` plugin. MkDocs enables it by default if there is no `plugins` entry set, but now you have to enable it explicitly.
@@ -45,10 +48,12 @@ Search is done as follows:
 ```
 INFO -  The following files exist in the docs directory, but may be unused:
         - images/image1.svg
-        - images/subdir/image2.png 
+        - images/subdir/image2.png
 ```
 
 ## Options
 
 * `dir`: The directory where to search for unused files. Path is relative to `docs_dir`. The plugin recurses all subdirectories. For example, if you specify `images` and `docs_dir` is set to `docs`, the plugin searches in `docs/images`, including all subdirectories. Defaults to `docs_dir`.
 * `file_types`: List of file types the plugin should process (whitelist). If empty or omitted, all files **except Markdown (md)** files will be processed. Defaults to `[]`.
+* `excluded_files`: List of files (relative to the `dir`), which are explicitly excluded. Works in combination with `file_types`
+* `strict`: A boolean, defaulting to `false`, which elevates the log level to warning. This allows unused-files to be combined with `mkdocs` strict flag (`-s`) to abort a build if unused files exist.
