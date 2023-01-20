@@ -21,15 +21,7 @@ Enable the plugin in your mkdocs.yml:
 ```yaml
 plugins:
   - search
-  - unused_files:
-      dir: images
-      file_types:
-        - png
-        - jpg
-        - svg
-      excluded_files:
-        - css/favicon.png
-      strict: true
+  - unused_files
 ```
 
 > **Note:** If you have no `plugins` entry in your config file yet, you'll likely also want to add the `search` plugin. MkDocs enables it by default if there is no `plugins` entry set, but now you have to enable it explicitly.
@@ -57,3 +49,20 @@ INFO -  The following files exist in the docs directory, but may be unused:
 * `file_types`: List of file types the plugin should process (whitelist). If empty or omitted, all files **except Markdown (md)** files will be processed. Defaults to `[]`.
 * `excluded_files`: List of files (relative to `dir`) which are explicitly excluded. Works in combination with `file_types`. Defaults to `[]`.
 * `strict`: Elevates the log level to `warning`. This allows you to use MkDocs' strict flag (`mkdocs build -s`) to abort a build if unused files exist. Defaults to `false`.
+* `enabled`: This option specifies whether the plugin is enabled when building your project. If you want to switch the plugin off, e.g. for local builds, use an [environment variable](https://www.mkdocs.org/user-guide/configuration/#environment-variables). Defaults to `true`.
+
+### Example
+
+```yml
+plugins:
+  - unused_files:
+    dir: images
+    file_types:
+      - png
+      - jpg
+      - svg
+    excluded_files:
+      - css/favicon.png
+    strict: true
+    enabled: !ENV [CI, false]
+```
