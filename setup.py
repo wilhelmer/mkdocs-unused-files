@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='mkdocs-unused-files',
-    version='0.1.6',
+    version='0.1.7',
     description='An MkDocs plugin to find unused (orphaned) files in your project.',
     long_description='',
     keywords='mkdocs',
@@ -12,7 +12,8 @@ setup(
     license='MIT',
     python_requires='>=2.7',
     install_requires=[
-        'mkdocs>=1.0.4'
+        'mkdocs>=1.0.4',
+        'beautifulsoup4>=4.12.0'
     ],
     classifiers=[
         'Development Status :: 4 - Beta',
