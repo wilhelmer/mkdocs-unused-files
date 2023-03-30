@@ -35,12 +35,11 @@ class UnusedFilesPlugin(BasePlugin):
         if not self.config['enabled']:
             return
         # Disable plugin when the documentation is served, i.e., "mkdocs serve" is used
-        self.config['enabled'] = command != "serve"
+        if command == "serve":
+            self.config['enabled'] = False
+            log.info("Unused-files plugin disabled while MkDocs is running in 'serve' mode.")
 
     def on_files(self, files, config):
-        if not self.config['enabled']:
-            log.info("unused-files plugin disabled.")
-            return
         dir = os.path.join(config.docs_dir, self.config['dir'])
         # Get all files in directory
         for path, _, files in os.walk(dir):
