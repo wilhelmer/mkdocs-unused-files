@@ -47,7 +47,7 @@ INFO -  The following files exist in the docs directory, but may be unused:
 
 * `dir`: The directory where to search for unused files. Path is relative to `docs_dir`. The plugin recurses all subdirectories. For example, if you specify `images` and `docs_dir` is set to `docs`, the plugin searches in `docs/images`, including all subdirectories. Defaults to `docs_dir`.
 * `file_types`: List of file types the plugin should process (whitelist). If empty or omitted, all files **except Markdown (md)** files will be processed. Defaults to `[]`.
-* `excluded_files`: List of files (relative to `dir`) which are explicitly excluded. Works in combination with `file_types`. Defaults to `[]`.
+* `excluded_files`: List of files the plugin should **not** process (blacklist). Works in combination with `file_types`. Entries apply to `dir` and all its subdirectories. Do not specify paths here, only file names. You can use wildcards. For example, `foo-*.jpg` excludes all JPG files prefixed with `foo-` in all directories. Defaults to `[]`.
 * `strict`: Elevates the log level to `warning`. This allows you to use MkDocs' strict flag (`mkdocs build -s`) to abort a build if unused files exist. Defaults to `false`.
 * `enabled`: This option specifies whether the plugin is enabled when building your project. If you want to switch the plugin off, e.g. for local builds, use an [environment variable](https://www.mkdocs.org/user-guide/configuration/#environment-variables). Defaults to `true`.
 
@@ -62,7 +62,8 @@ plugins:
       - jpg
       - svg
     excluded_files:
-      - css/favicon.png
+      - favicon.png
+      - foo-*.jpg
     strict: true
     enabled: !ENV [CI, false]
 ```

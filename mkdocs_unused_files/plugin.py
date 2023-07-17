@@ -1,6 +1,7 @@
 import os
 import logging
 import urllib.parse
+from fnmatch import fnmatch
 from mkdocs.config import config_options
 from mkdocs.plugins import BasePlugin
 from bs4 import BeautifulSoup
@@ -50,7 +51,12 @@ class UnusedFilesPlugin(BasePlugin):
                     # Create entry from relative path between full path and docs_dir + filename
                     # When path and docs_dir are identical, relpath returns ".". We use normpath() to resolve that
                     entry = os.path.normpath(os.path.join(os.path.relpath(path, config.docs_dir), file))
-                    if entry in self.config['excluded_files']:
+                    # Check whether file is excluded
+                    is_excluded = False
+                    for excluded_file in self.config['excluded_files']:
+                        if fnmatch(file, excluded_file):
+                            is_excluded = True
+                    if is_excluded:
                         continue
                     self.file_list.append(entry)
 
